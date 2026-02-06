@@ -1,5 +1,6 @@
 package com.example.shoppingcartapi.service.user;
 
+import com.example.shoppingcartapi.dto.UserDto;
 import com.example.shoppingcartapi.dto.request.CreateUserRequest;
 import com.example.shoppingcartapi.dto.request.UserUpdateRequest;
 import com.example.shoppingcartapi.exception.AlreadyExistsException;
@@ -7,6 +8,7 @@ import com.example.shoppingcartapi.exception.ResourceNotFoundException;
 import com.example.shoppingcartapi.model.User;
 import com.example.shoppingcartapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,6 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService implements IUserService{
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public User getUserById(Long userId) {
@@ -53,5 +56,10 @@ public class UserService implements IUserService{
                         .ifPresentOrElse(userRepository :: delete, () -> {
                             throw new ResourceNotFoundException("User not found");
                         });
+    }
+
+    @Override
+    public UserDto convertUserToDto(User user) {
+        return modelMapper.map(user, UserDto.class);
     }
 }

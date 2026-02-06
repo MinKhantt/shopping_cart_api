@@ -1,5 +1,6 @@
 package com.example.shoppingcartapi.service.user;
 
+import com.example.shoppingcartapi.dto.UserDto;
 import com.example.shoppingcartapi.dto.request.CreateUserRequest;
 import com.example.shoppingcartapi.dto.request.UserUpdateRequest;
 import com.example.shoppingcartapi.model.User;
@@ -13,4 +14,6 @@ public interface IUserService {
     User updateUser(UserUpdateRequest request, long userId);
 
     void deleteUser(Long userId);
+
+    UserDto convertUserToDto(User user);
 }
