@@ -4,6 +4,7 @@ import com.example.shoppingcartapi.dto.ProductDto;
 import com.example.shoppingcartapi.dto.request.AddProductRequest;
 import com.example.shoppingcartapi.dto.request.ProductUpdateRequest;
 import com.example.shoppingcartapi.dto.response.ApiResponse;
+import com.example.shoppingcartapi.exception.AlreadyExistsException;
 import com.example.shoppingcartapi.exception.ResourceNotFoundException;
 import com.example.shoppingcartapi.model.Product;
 import com.example.shoppingcartapi.service.product.IProductService;
@@ -12,8 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,9 +44,10 @@ public class ProductController {
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
         try {
             Product theProduct = productService.addProduct(product);
-            return ResponseEntity.ok(new ApiResponse("Add product success", theProduct));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
+            ProductDto productDto = productService.convertToDto(theProduct);
+            return ResponseEntity.ok(new ApiResponse("Add product success", productDto));
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(CONFLICT)
                     .body(new ApiResponse(e.getMessage(), null));
         }
     }

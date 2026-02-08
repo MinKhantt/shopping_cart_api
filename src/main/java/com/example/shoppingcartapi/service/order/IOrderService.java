@@ -6,7 +6,7 @@ import com.example.shoppingcartapi.model.Order;
 import java.util.List;
 
 public interface IOrderService {
-    Order placeOrder(Long userId); // after implement user stuff replace OrderItem userId
+    OrderDto placeOrder(Long userId); // after implement user stuff replace OrderItem userId
     OrderDto getOrder(Long orderId);
 
     List<OrderDto> getUserOrders(Long userId);

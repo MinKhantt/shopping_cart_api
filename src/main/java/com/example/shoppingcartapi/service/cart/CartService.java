@@ -2,6 +2,7 @@ package com.example.shoppingcartapi.service.cart;
 
 import com.example.shoppingcartapi.exception.ResourceNotFoundException;
 import com.example.shoppingcartapi.model.Cart;
+import com.example.shoppingcartapi.model.User;
 import com.example.shoppingcartapi.repository.CartItemRepository;
 import com.example.shoppingcartapi.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -43,11 +45,14 @@ public class CartService implements ICartService{
     }
 
 
-    // will delete after implement user stuff
     @Override
-    public Long initNewCart(){
-        Cart newCart = new Cart();
-        return cartRepository.save(newCart).getId();
+    public Cart initNewCart(User user){
+        return Optional.ofNullable(getCartByUserId(user.getId()))
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepository.save(newCart);
+                });
     }
 
     @Override

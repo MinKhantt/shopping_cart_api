@@ -3,8 +3,11 @@ package com.example.shoppingcartapi.controller;
 
 import com.example.shoppingcartapi.dto.response.ApiResponse;
 import com.example.shoppingcartapi.exception.ResourceNotFoundException;
+import com.example.shoppingcartapi.model.Cart;
+import com.example.shoppingcartapi.model.User;
 import com.example.shoppingcartapi.service.cart.ICartItemService;
 import com.example.shoppingcartapi.service.cart.ICartService;
+import com.example.shoppingcartapi.service.user.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,22 +19,20 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RequestMapping("${api.prefix}/cartItems")
 public class CartItemController {
     private final ICartItemService cartItemService;
-    private final ICartService cartService; // will delete after implement user stuff
+    private final ICartService cartService;
+    private final IUserService userService;
 
     @PostMapping("/item/add")
     public ResponseEntity<ApiResponse> addItemToCart(
-            @RequestParam(required = false) Long cartId,
+//            @RequestParam Long cartId,
             @RequestParam Long productId,
             @RequestParam Integer quantity
     ) {
         try {
+            User user = userService.getUserById(3L);
+            Cart cart = cartService.initNewCart(user);
 
-            // will delete after implement user stuff
-            if (cartId == null) {
-                cartId = cartService.initNewCart();
-            }
-
-            cartItemService.addItemToCart(cartId, productId, quantity);
+            cartItemService.addItemToCart(cart.getId(), productId, quantity);
             return ResponseEntity.ok(new ApiResponse("Add item success", null));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND)

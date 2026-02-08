@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class OrderService implements IOrderService{
     private final ModelMapper modelMapper;
 
     @Override
-    public Order placeOrder(Long userId) {
+    public OrderDto placeOrder(Long userId) {
         Cart cart = cartService.getCartByUserId(userId);
 
         Order order = createOrder(cart);
@@ -38,17 +39,21 @@ public class OrderService implements IOrderService{
 
         order.setOrderItems(new HashSet<>(orderItemList));
         order.setTotalAmount(calculateTotalAmount(orderItemList));
-        Order saveOrder = orderRepository.save(order);
 
+        // Save the entity
+        Order savedOrder = orderRepository.save(order);
+
+        // Clear the cart
         cartService.clearCart(cart.getId());
-        return saveOrder;
+
+        return convertToDto(savedOrder);
     }
 
     private Order createOrder(Cart cart) {
         Order order = new Order();
         order.setUser(cart.getUser());
         order.setOrderStatus(OrderStatus.PENDING);
-        order.setOrderDate(LocalDate.now());
+        order.setOrderDate(LocalDateTime.now());
         return order;
     }
 

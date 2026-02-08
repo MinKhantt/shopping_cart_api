@@ -3,6 +3,7 @@ package com.example.shoppingcartapi.service.product;
 import com.example.shoppingcartapi.dto.ProductDto;
 import com.example.shoppingcartapi.dto.request.AddProductRequest;
 import com.example.shoppingcartapi.dto.request.ProductUpdateRequest;
+import com.example.shoppingcartapi.exception.AlreadyExistsException;
 import com.example.shoppingcartapi.exception.ResourceNotFoundException;
 import com.example.shoppingcartapi.model.Category;
 import com.example.shoppingcartapi.model.Image;
@@ -34,6 +35,10 @@ public class ProductService implements IProductService {
         // if No, the save as the new category
         // the set as the new product category
 
+        if(checkProductAlreadyExit(request.getName(), request.getBrand())) {
+            throw new AlreadyExistsException(request.getName() + " " + request.getBrand() + " already exit!");
+        }
+
         Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(()-> {
                     Category newCategory = new Category(request.getCategory().getName());
@@ -42,6 +47,10 @@ public class ProductService implements IProductService {
 
         request.setCategory(category);
         return  productRepository.save(createProduct(request, category));
+    }
+
+    private boolean checkProductAlreadyExit(String name, String brand) {
+        return productRepository.existsByNameAndBrand(name, brand);
     }
 
     private Product createProduct(AddProductRequest request, Category category) {
