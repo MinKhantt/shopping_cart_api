@@ -39,13 +39,13 @@ public class ProductService implements IProductService {
             throw new AlreadyExistsException(request.getName() + " " + request.getBrand() + " already exit!");
         }
 
-        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
+        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory()))
                 .orElseGet(()-> {
-                    Category newCategory = new Category(request.getCategory().getName());
+                    Category newCategory = new Category(request.getCategory());
                     return categoryRepository.save(newCategory);
                 });
 
-        request.setCategory(category);
+//        request.setCategory(category);
         return  productRepository.save(createProduct(request, category));
     }
 

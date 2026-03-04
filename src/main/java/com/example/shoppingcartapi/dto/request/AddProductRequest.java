@@ -14,6 +14,6 @@ public class AddProductRequest {
     private int inventory;
     private String description;
 
-    private Category category;
-//    private String category;
+//    private Category category;
+    private String category;
 }
