@@ -5,52 +5,76 @@ import com.example.shoppingcartapi.dto.request.CreateUserRequest;
 import com.example.shoppingcartapi.dto.request.UserUpdateRequest;
 import com.example.shoppingcartapi.exception.AlreadyExistsException;
 import com.example.shoppingcartapi.exception.ResourceNotFoundException;
-import com.example.shoppingcartapi.model.User;
+import com.example.shoppingcartapi.mapper.UserMapper;
 import com.example.shoppingcartapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService{
+
     private final UserRepository userRepository;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     @Override
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(()-> new ResourceNotFoundException("User not found!"));
+    public UserDto createUser(CreateUserRequest request) {
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new AlreadyExistsException(
+                    "User " + request.getEmail() + " already exists!"
+            );
+        }
+
+        var user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+        return userMapper.userToUserDto(user);
     }
 
     @Override
-    public User createUser(CreateUserRequest request) {
-        return  Optional.of(request)
-                .filter(user -> !userRepository.existsByEmail(request.getEmail()))
-                .map(req -> {
-                    User user = new User();
-                    user.setEmail(request.getEmail());
-                    user.setPassword(passwordEncoder.encode(request.getPassword()));
-                    user.setFirstName(request.getFirstName());
-                    user.setLastName(request.getLastName());
-                    return  userRepository.save(user);
-                }) .orElseThrow(() -> new AlreadyExistsException("User " +request.getEmail() +" already exists!"));
+    public UserDto getUserById(Long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User " + userId + " not found!"));
+
+        return userMapper.userToUserDto(user);
     }
 
     @Override
-    public User updateUser(UserUpdateRequest request, long userId) {
-        return userRepository.findById(userId)
-                .map(existingUser -> {
-                    existingUser.setFirstName(request.getFirstName());
-                    existingUser.setLastName(request.getLastName());
-                    return userRepository.save(existingUser);
-                }).orElseThrow(() -> new ResourceNotFoundException("User not found!"));
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::userToUserDto)
+                .toList();
+    }
 
+    @Override
+    public UserDto getUserByEmail(String email) {
+        var user = Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(() -> new ResourceNotFoundException("User With Email: " + email + " not found!"));
+
+        return userMapper.userToUserDto(user);
+    }
+
+    @Override
+    public UserDto updateUser(UserUpdateRequest request, long userId) {
+        var existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User " + userId + " not found!"));
+
+//        existingUser.setFirstName(request.getFirstName());
+//        existingUser.setLastName(request.getLastName());
+        userMapper.updateUserFromRequest(request, existingUser);
+        userRepository.save(existingUser);
+        return userMapper.userToUserDto(existingUser);
     }
 
     @Override
@@ -62,14 +86,12 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public UserDto convertUserToDto(User user) {
-        return modelMapper.map(user, UserDto.class);
-    }
-
-    @Override
-    public User getAuthenticatedUser() {
+    public UserDto getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return userRepository.findByEmail(email);
+        var user = Optional.ofNullable(userRepository.findByEmail(email))
+                .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found"));
+
+        return userMapper.userToUserDto(user);
     }
 }

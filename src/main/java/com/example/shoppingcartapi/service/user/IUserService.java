@@ -5,17 +5,21 @@ import com.example.shoppingcartapi.dto.request.CreateUserRequest;
 import com.example.shoppingcartapi.dto.request.UserUpdateRequest;
 import com.example.shoppingcartapi.model.User;
 
+import java.util.List;
+
 public interface IUserService {
 
-    User getUserById(Long userId);
+    UserDto createUser(CreateUserRequest request);
 
-    User createUser(CreateUserRequest request);
+    UserDto getUserById(Long userId);
 
-    User updateUser(UserUpdateRequest request, long userId);
+    List<UserDto> getAllUsers();
+
+    UserDto getUserByEmail(String email);
+
+    UserDto updateUser(UserUpdateRequest request, long userId);
 
     void deleteUser(Long userId);
 
-    UserDto convertUserToDto(User user);
-
-    User getAuthenticatedUser();
+    UserDto getAuthenticatedUser();
 }

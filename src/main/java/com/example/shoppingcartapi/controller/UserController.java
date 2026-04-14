@@ -4,10 +4,8 @@ import com.example.shoppingcartapi.dto.UserDto;
 import com.example.shoppingcartapi.dto.request.CreateUserRequest;
 import com.example.shoppingcartapi.dto.request.UserUpdateRequest;
 import com.example.shoppingcartapi.dto.response.ApiResponse;
-import com.example.shoppingcartapi.exception.AlreadyExistsException;
-import com.example.shoppingcartapi.exception.ResourceNotFoundException;
-import com.example.shoppingcartapi.model.User;
 import com.example.shoppingcartapi.service.user.IUserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,50 +17,40 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final IUserService userService;
 
-    @GetMapping("/{userId}/user")
+    @PostMapping
+    public ResponseEntity<ApiResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        UserDto userDto = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse("User created successfully", userDto));
+    }
+
+    @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId) {
-        try {
-            User user = userService.getUserById(userId);
-            UserDto userDto = userService.convertUserToDto(user);
-            return ResponseEntity.ok(new ApiResponse("Fetch User With User ID Success", userDto));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        var userDto = userService.getUserById(userId);
+        return ResponseEntity.ok(new ApiResponse("User fetched successfully", userDto));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<ApiResponse> createUser(@RequestBody CreateUserRequest request) {
-        try {
-            User user = userService.createUser(request);
-            UserDto userDto = userService.convertUserToDto(user);
-            return ResponseEntity.ok(new ApiResponse("Create User Success!", userDto));
-        } catch (AlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+    @GetMapping
+    public ResponseEntity<ApiResponse> getAllUsers() {
+        var userDto = userService.getAllUsers();
+        return ResponseEntity.ok(new ApiResponse("User fetched successfully", userDto));
     }
 
-    @PutMapping("/{userId}/update")
+    @GetMapping("/by-email")
+    public  ResponseEntity<ApiResponse> getUserByEmail(@RequestParam String email) {
+        var userDto = userService.getUserByEmail(email);
+        return ResponseEntity.ok(new ApiResponse("User fetched successfully", userDto));
+    }
+
+    @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request, @PathVariable Long userId) {
-        try {
-            User user = userService.updateUser(request, userId);
-            UserDto userDto = userService.convertUserToDto(user);
-            return ResponseEntity.ok(new ApiResponse("Update User Success!", userDto));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        var userDto = userService.updateUser(request, userId);
+        return ResponseEntity.ok(new ApiResponse("User updated successfully", userDto));
     }
 
-    @DeleteMapping("/{userId}/delete")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId) {
-        try {
-            userService.deleteUser(userId);
-            return ResponseEntity.ok(new ApiResponse("Delete User Success!", null));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        userService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
     }
 }
