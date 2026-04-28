@@ -1,6 +1,7 @@
 package com.example.shoppingcartapi.controller;
 
 
+import com.example.shoppingcartapi.dto.UserDto;
 import com.example.shoppingcartapi.dto.response.ApiResponse;
 import com.example.shoppingcartapi.exception.ResourceNotFoundException;
 import com.example.shoppingcartapi.model.Cart;
@@ -24,26 +25,26 @@ public class CartItemController {
     private final ICartService cartService;
     private final IUserService userService;
 
-    @PostMapping("/item/add")
-    public ResponseEntity<ApiResponse> addItemToCart(
-            @RequestParam Long productId,
-            @RequestParam Integer quantity
-    ) {
-        try {
-            User user = userService.getAuthenticatedUser();
-            Cart cart = cartService.initNewCart(user);
-
-            cartItemService.addItemToCart(cart.getId(), productId, quantity);
-            return ResponseEntity.ok(new ApiResponse("Add item success", null));
-        } catch (ResourceNotFoundException e) {
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
-        catch (JwtException e) {
-            return ResponseEntity.status(UNAUTHORIZED)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
-    }
+//    @PostMapping("/item/add")
+//    public ResponseEntity<ApiResponse> addItemToCart(
+//            @RequestParam Long productId,
+//            @RequestParam Integer quantity
+//    ) {
+//        try {
+//            UserDto user = userService.getAuthenticatedUser();
+//            Cart cart = cartService.initNewCart(user);
+//
+//            cartItemService.addItemToCart(cart.getId(), productId, quantity);
+//            return ResponseEntity.ok(new ApiResponse("Add item success", null));
+//        } catch (ResourceNotFoundException e) {
+//            return ResponseEntity.status(NOT_FOUND)
+//                    .body(new ApiResponse(e.getMessage(), null));
+//        }
+//        catch (JwtException e) {
+//            return ResponseEntity.status(UNAUTHORIZED)
+//                    .body(new ApiResponse(e.getMessage(), null));
+//        }
+//    }
 
     @DeleteMapping("/cart/{cartId}/item/{itemId}/remove")
     public ResponseEntity<ApiResponse> removeItemFromCart(

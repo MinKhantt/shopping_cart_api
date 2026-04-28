@@ -6,6 +6,7 @@ import com.example.shoppingcartapi.dto.request.LoginRequest;
 import com.example.shoppingcartapi.dto.response.ApiResponse;
 import com.example.shoppingcartapi.dto.response.JwtResponse;
 import com.example.shoppingcartapi.exception.AlreadyExistsException;
+import com.example.shoppingcartapi.mapper.UserMapper;
 import com.example.shoppingcartapi.model.User;
 import com.example.shoppingcartapi.security.jwt.JwtUtils;
 import com.example.shoppingcartapi.security.user.ShopUserDetails;
@@ -30,19 +31,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody CreateUserRequest request) {
-        try {
-            User user = userService.createUser(request);
-            UserDto userDto = userService.convertUserToDto(user);
-            return ResponseEntity.ok(new ApiResponse("Registration Successful", userDto));
-        } catch (AlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+//        try {
+//            UserDto user = userService.createUser(request);
+//            UserDto userDto = userMapper.UserToUserDto(user);
+//            return ResponseEntity.ok(new ApiResponse("Registration Successful", userDto));
+//        } catch (AlreadyExistsException e) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT)
+//                    .body(new ApiResponse(e.getMessage(), null));
+//        }
+
+        UserDto userDto = userService.createUser(request);
+        return ResponseEntity.ok(new ApiResponse("Registration Successful", userDto));
     }
 
     @PostMapping("/login")

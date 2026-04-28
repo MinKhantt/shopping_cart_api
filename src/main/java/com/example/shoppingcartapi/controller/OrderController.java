@@ -16,7 +16,7 @@ import java.util.List;
 public class OrderController {
     private final IOrderService orderService;
 
-    @PostMapping("/order")
+    @PostMapping("/")
     public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId) {
         try {
             OrderDto order = orderService.placeOrder(userId);
@@ -27,7 +27,7 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/{orderId}/order")
+    @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse> getOrderById(@PathVariable Long orderId) {
         try {
             OrderDto order = orderService.getOrder(orderId);

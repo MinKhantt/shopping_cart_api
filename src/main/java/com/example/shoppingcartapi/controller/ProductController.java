@@ -29,7 +29,7 @@ public class ProductController {
         return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
     }
 
-    @GetMapping("/product/{productId}")
+    @GetMapping("/{productId}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
         try {
             Product product = productService.getProductById(productId);
@@ -42,7 +42,7 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PostMapping("/add")
+    @PostMapping("/")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
         try {
             Product theProduct = productService.addProduct(product);
@@ -55,7 +55,7 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @PutMapping("/product/{productId}/update")
+    @PutMapping("/{productId}")
     public ResponseEntity<ApiResponse> updateProduct(
             @RequestBody ProductUpdateRequest request,
             @PathVariable Long productId
@@ -71,7 +71,7 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping("/product/{productId}/delete")
+    @DeleteMapping("/{productId}")
     public ResponseEntity<ApiResponse> deleteProduct(
             @PathVariable Long productId
     ) {
@@ -84,7 +84,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/product/by/brand-and-name")
+    @GetMapping("/by/brand-and-name")
     public ResponseEntity<ApiResponse> getProductByBrandAndName(
             @RequestParam String brand,
             @RequestParam String productName
@@ -105,7 +105,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/product/by/category-and-brand")
+    @GetMapping("/by/category-and-brand")
     public ResponseEntity<ApiResponse> getProductsByCategoryAndBrand(
             @RequestParam  String category,
             @RequestParam  String brand
@@ -126,7 +126,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/product/by-name/{name}")
+    @GetMapping("/by-name/{name}")
     public ResponseEntity<ApiResponse> getProductByName(
             @PathVariable  String name
     ) {
@@ -146,7 +146,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/product/by-brand")
+    @GetMapping("/by-brand")
     public ResponseEntity<ApiResponse> getProductsByBrand(
             @RequestParam  String brand
     ) {
@@ -166,7 +166,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/product/by-category/{category}")
+    @GetMapping("/by-category/{category}")
     public ResponseEntity<ApiResponse> getProductsByCategory(
             @PathVariable  String category
     ) {
@@ -186,7 +186,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/product/count/by/brand-and-name")
+    @GetMapping("/count/by/brand-and-name")
     public ResponseEntity<ApiResponse> countProductsByBrandAndName(
             @RequestParam String brand,
             @RequestParam String name

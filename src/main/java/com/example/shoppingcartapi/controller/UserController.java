@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/users")
@@ -26,25 +28,25 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId) {
-        var userDto = userService.getUserById(userId);
+        UserDto userDto = userService.getUserById(userId);
         return ResponseEntity.ok(new ApiResponse("User fetched successfully", userDto));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse> getAllUsers() {
-        var userDto = userService.getAllUsers();
+        List<UserDto> userDto = userService.getAllUsers();
         return ResponseEntity.ok(new ApiResponse("User fetched successfully", userDto));
     }
 
     @GetMapping("/by-email")
     public  ResponseEntity<ApiResponse> getUserByEmail(@RequestParam String email) {
-        var userDto = userService.getUserByEmail(email);
+        UserDto userDto = userService.getUserByEmail(email);
         return ResponseEntity.ok(new ApiResponse("User fetched successfully", userDto));
     }
 
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request, @PathVariable Long userId) {
-        var userDto = userService.updateUser(request, userId);
+        UserDto userDto = userService.updateUser(request, userId);
         return ResponseEntity.ok(new ApiResponse("User updated successfully", userDto));
     }
 
